@@ -3,16 +3,20 @@ DvClient
 Copyright 2018 - 2019 by Volodymyr Dobryvechir (dobrivecher@yahoo.com vdobryvechir@gmail.com)
 ************************************************************************/
 
-package dvclient
+package dvtask
 
 import (
-	"github.com/Dobryvechir/dvclient/src/dvtask"
-	"github.com/Dobryvechir/dvserver/src/dvlog"
+	"log"
+	"strings"
 )
 
-func ClientStart() {
-	cf := ReadConfig()
-	dvlog.StartingLogFile()
-	dvtask.InitTasks()
-	dvtask.ExecuteTasks(cf.Tasks)
+func LogTasks(tasks []DvTask) {
+	if len(tasks) == 0 {
+		log.Print("No tasks")
+	} else {
+		for _, task := range tasks {
+			p := task.Name + " [" + strings.Join(task.Params, ",") + "]"
+			log.Print(p)
+		}
+	}
 }
