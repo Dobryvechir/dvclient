@@ -7,18 +7,32 @@ package dvclient
 
 import (
 	"github.com/Dobryvechir/dvclient/src/dvtask"
+
+	"github.com/Dobryvechir/dvserver/src/dvcom"
+	"github.com/Dobryvechir/dvserver/src/dvconfig"
+	"github.com/Dobryvechir/dvserver/src/dvevaluation"
+	"github.com/Dobryvechir/dvserver/src/dvjson"
 	"github.com/Dobryvechir/dvserver/src/dvlog"
 	"github.com/Dobryvechir/dvserver/src/dvparser"
-	"github.com/Dobryvechir/dvserver/src/dvconfig"
+
+	"encoding/json"
+	"io/ioutil"
+	"log"
+	"strings"
 )
 
 type DvConfig struct {
-	Namespace  string          `json:"namespace"`
-	Listen     string          `json:"listen"`
-	RootFolder string          `json:"rootFolder"`
-	LogLevel   string          `json:"logLevel"`
-	LogModules string          `json:"logModules"`
-	Tasks      []dvtask.DvTask `json:"tasks"`
+	Namespace  string                   `json:"namespace"`
+	Listen     string                   `json:"listen"`
+	ServerPath string                   `json:"serverPath"`
+	RootFolder string                   `json:"rootFolder"`
+	LogLevel   string                   `json:"logLevel"`
+	LogModules string                   `json:"logModules"`
+	Tasks      []dvtask.DvTask          `json:"tasks"`
+	Phase      string                   `json:"phase"`
+	Scripts    []string                 `json:"scripts"`
+	Routines   []dvevaluation.DvRoutine `json:"routines"`
+	Blocks     []dvtask.DvBlock                `json:"blocks"`
 }
 
 const DV_CLIENT_CONFIG = "DvClient.conf"
@@ -32,12 +46,12 @@ func ReadConfig() DvConfig {
 	if filename == "" {
 		cf.Namespace = dvlog.CurrentNamespace
 		cf.Listen = ":80"
-		cf.Server = DvHostServer{BaseFolder: "."}
+		cf.ServerPath = "."
 	} else {
 		data, err := dvparser.SmartReadTemplate(filename, 3, byte(' '))
 		if err == nil {
 			dvlog.CleanEOL(data)
-			if saveConfig, okSave := dvparser.GlobalProperties[DV_CONFIG_DEBUG_WRITE]; okSave {
+			if saveConfig, okSave := dvparser.GlobalProperties[dvconfig.DV_CONFIG_DEBUG_WRITE]; okSave {
 				err2 := ioutil.WriteFile(saveConfig, data, 0644)
 				if err2 != nil {
 					log.Print("Cannot write resulted config to " + saveConfig + ": " + err2.Error())
@@ -46,7 +60,7 @@ func ReadConfig() DvConfig {
 			err = json.Unmarshal(data, &cf)
 		}
 		if err != nil {
-			err2 := ioutil.WriteFile(currentDir+"/debug_dvclient_conf.txt", data, 0644)
+			err2 := ioutil.WriteFile(dvconfig.CurrentDir+"/debug_dvclient_conf.txt", data, 0644)
 			if err2 != nil {
 				log.Print("Cannot write ./debug_dvclient_conf.txt: " + err2.Error())
 			}
@@ -55,7 +69,7 @@ func ReadConfig() DvConfig {
 	}
 	dvparser.DvParserLog = false
 	dvlog.SetCurrentNamespace(cf.Namespace)
-	dvserver.ResetNamespaceFolder()
+	dvconfig.ResetNamespaceFolder()
 	if cf.RootFolder != "" {
 		dvlog.CurrentRootFolder = cf.RootFolder
 	}

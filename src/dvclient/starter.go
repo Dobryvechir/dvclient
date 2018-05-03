@@ -13,6 +13,6 @@ import (
 func ClientStart() {
 	cf := ReadConfig()
 	dvlog.StartingLogFile()
-	dvtask.InitTasks()
-	dvtask.ExecuteTasks(cf.Tasks)
+	dvtask.InitTasks(cf.Scripts, cf.Routines, cf.Blocks)
+	dvtask.ExecuteTasks(cf.Tasks, cf.Phase)
 }

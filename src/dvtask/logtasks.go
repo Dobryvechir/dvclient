@@ -7,7 +7,6 @@ package dvtask
 
 import (
 	"log"
-	"strings"
 )
 
 func LogTasks(tasks []DvTask) {
@@ -15,7 +14,13 @@ func LogTasks(tasks []DvTask) {
 		log.Print("No tasks")
 	} else {
 		for _, task := range tasks {
-			p := task.Name + " [" + strings.Join(task.Params, ",") + "]"
+			p := task.Name + " ["
+			comma := ""
+			for k, v := range task.Params {
+				p += comma + `"` + k + `": "` + v + `"`
+				comma = ","
+			}
+			p += "] " 
 			log.Print(p)
 		}
 	}
