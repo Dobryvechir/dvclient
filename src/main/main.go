@@ -6,7 +6,7 @@ Copyright 2018 - 2019 by Volodymyr Dobryvechir (dobrivecher@yahoo.com vdobryvech
 package main
 
 import (
-   "github.com/Dobryvechir/dvclient/src/dvclient"
+	"github.com/Dobryvechir/dvclient/src/dvclient"
 )
 
 func main() {

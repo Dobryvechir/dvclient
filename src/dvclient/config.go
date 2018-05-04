@@ -32,7 +32,7 @@ type DvConfig struct {
 	Phase      string                   `json:"phase"`
 	Scripts    []string                 `json:"scripts"`
 	Routines   []dvevaluation.DvRoutine `json:"routines"`
-	Blocks     []dvtask.DvBlock                `json:"blocks"`
+	Blocks     []dvtask.DvBlock         `json:"blocks"`
 }
 
 const DV_CLIENT_CONFIG = "DvClient.conf"

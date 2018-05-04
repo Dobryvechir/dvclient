@@ -6,9 +6,8 @@ Copyright 2018 - 2019 by Volodymyr Dobryvechir (dobrivecher@yahoo.com vdobryvech
 package dvtask
 
 import (
-	"github.com/Dobryvechir/dvserver/src/dvevaluation"
 	"errors"
-        "log" 
+	"github.com/Dobryvechir/dvserver/src/dvevaluation"
 	"strings"
 )
 
@@ -63,15 +62,11 @@ func ExecuteTasks(tasks []DvTask, phase string) error {
 	default:
 		return errors.New("Only the following phases are supported: info, verify, execute, fix, but not \"" + phase + "\"")
 	}
-	if LogTask {
-		LogTasks(tasks)
-                log.Print(phaseScope)
-	}
 	context := DvExecutionContext{}
 	if err := context.initContext(tasks); err != nil {
 		return err
 	}
-	if err := context.executeTasks(); err != nil {
+	if err := context.executeTasks(phaseScope); err != nil {
 		return err
 	}
 	return nil

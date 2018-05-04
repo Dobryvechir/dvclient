@@ -20,7 +20,7 @@ func LogTasks(tasks []DvTask) {
 				p += comma + `"` + k + `": "` + v + `"`
 				comma = ","
 			}
-			p += "] " 
+			p += "] "
 			log.Print(p)
 		}
 	}
