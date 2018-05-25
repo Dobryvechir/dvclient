@@ -6,6 +6,7 @@ Copyright 2018 - 2019 by Volodymyr Dobryvechir (dobrivecher@yahoo.com vdobryvech
 package dvclient
 
 import (
+        "log"
 	"github.com/Dobryvechir/dvclient/src/dvtask"
 	"github.com/Dobryvechir/dvserver/src/dvlog"
 )
@@ -13,6 +14,10 @@ import (
 func ClientStart() {
 	cf := ReadConfig()
 	dvlog.StartingLogFile()
-	dvtask.InitTasks(cf.Scripts, cf.Routines, cf.Blocks)
-	dvtask.ExecuteTasks(cf.Tasks, cf.Phase)
+	if err:=dvtask.InitTasks(cf.Scripts, cf.Routines, cf.Blocks);err!=nil {
+            log.Print(err.Error())
+        }
+	if err:=dvtask.ExecuteTasks(cf.Tasks, cf.Phase);err!=nil {
+            log.Print(err.Error())
+        }
 }
