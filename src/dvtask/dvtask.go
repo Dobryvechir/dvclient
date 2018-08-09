@@ -45,8 +45,8 @@ type DvExtendedBlock struct {
 }
 
 var LogTask bool = true
-var engine dvevaluation.DvScript
-var engineBlocks map[string]DvExtendedBlock
+var engine *dvevaluation.DvScript
+var engineBlocks map[string]*DvExtendedBlock
 
 func ExecuteTasks(tasks []DvTask, phase string) error {
 	var phaseScope int
@@ -64,10 +64,10 @@ func ExecuteTasks(tasks []DvTask, phase string) error {
 	}
 	context := DvExecutionContext{}
 	if err := context.initContext(tasks); err != nil {
-		return err
+		return dvevaluation.EnrichErrorStr(err, "With aimed phase: "+phase)
 	}
-	if err := context.executeTasks(phaseScope); err != nil {
-		return err
+	if err := context.executeTasks(phaseScope, engineBlocks); err != nil {
+		return dvevaluation.EnrichErrorStr(err, "With aimed phase: "+phase)
 	}
 	return nil
 }
@@ -76,37 +76,38 @@ func InitTasks(scripts []string, routines []dvevaluation.DvRoutine, blocks []DvB
 	var err error
 	engine, err = dvevaluation.ParseScripts(scripts)
 	if err != nil {
-		return err
+		return dvevaluation.EnrichErrorStr(err, "At Init Tasks due to Parse Script")
 	}
 	err = engine.AddRoutines(routines)
 	if err != nil {
-		return err
+		return dvevaluation.EnrichErrorStr(err, "At Init Tasks due to Adding Routines")
 	}
-	engineBlocks = make(map[string]DvExtendedBlock)
+	engineBlocks = make(map[string]*DvExtendedBlock)
 	if len(blocks) > 0 {
 		for _, block := range blocks {
 			if _, ok := engineBlocks[block.Name]; ok {
-				return errors.New("Block name " + block.Name + " is duplicated")
+				return errors.New("At Init Task: Block name " + block.Name + " is duplicated")
 			}
-			extendedBlock := DvExtendedBlock{Routines: make([][]string, BLOCK_FIX)}
+			extendedBlock := &DvExtendedBlock{Routines: make([][]string, BLOCK_FIX)}
 			if err = extendedBlock.addPhase(BLOCK_INITIAL, block.Initial); err != nil {
-				return err
+				return dvevaluation.EnrichErrorStr(err, "At adding initial phase in block "+block.Name)
 			}
 			if err = extendedBlock.addPhase(BLOCK_INFO, block.Info); err != nil {
-				return err
+				return dvevaluation.EnrichErrorStr(err, "At adding info phase in block "+block.Name)
 			}
 			if err = extendedBlock.addPhase(BLOCK_EXECUTE, block.Execute); err != nil {
-				return err
+				return dvevaluation.EnrichErrorStr(err, "At adding execute phase in block "+block.Name)
 			}
 			if err = extendedBlock.addPhase(BLOCK_VERIFY, block.Verify); err != nil {
-				return err
+				return dvevaluation.EnrichErrorStr(err, "At adding verify phase in block "+block.Name)
 			}
+			engineBlocks[block.Name] = extendedBlock
 		}
 	}
 	return nil
 }
 
-func (block DvExtendedBlock) addPhase(index int, routines []string) error {
+func (block *DvExtendedBlock) addPhase(index int, routines []string) error {
 	block.Routines[index] = routines
 	err := engine.VerifyRoutines(routines)
 	return err
